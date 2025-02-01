@@ -3,7 +3,13 @@
 <div id="header" align="center">
   <img src="https://media.giphy.com/media/M9gbBd9nbDrOTu1Mqx/giphy.gif" width="100"/>
 </div>
-<img src="https://komarev.com/ghpvc/?username=lilommieluvp3ps1&style=flat-square&color=blue" alt=""/>
+<img src="https://komarev.com/ghpvc/?username=lilommieluvp3ps1&style=flat-square&color=blue" alt="account counter"/>
+
+---
+
+### :fire: My Stats :
+
+[![GitHub Streak](http://github-readme-streak-stats.herokuapp.com?user=lilommieluvp3ps1&theme=dark&background=000000)](https://git.io/streak-stats)
 
 **lilommieluvp3ps1/lilommieluvp3ps1** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
