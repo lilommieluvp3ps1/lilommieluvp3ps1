@@ -1,1 +1,119 @@
+// Not Finish kub baby girl
+#define F_CPU 16000000UL
+#define UART_RX_vect _VECTOR(18)
 
+#include <avr/io.h>
+#include <util/delay.h>
+#include <avr/interrupt.h>
+#include <stdio.h>
+
+volatile char ans = '1';
+
+void serial_begin()
+{
+  UBRR0 = 25;
+  UCSR0A = 0b00000000;
+  UCSR0B = 0b10011000; // Open RX Interrupt
+  UCSR0C = 0b00000110;
+
+  sei(); // Enable Global Interrupt
+}
+
+void serial_putc(char data)
+{
+  char busy;
+  do { busy = UCSR0A & 0b00100000; }
+  while (busy == 0);
+  UDR0 = data;
+}
+
+void serial_puts(char *data)
+{
+  while (*data)
+  {
+    serial_putc(*data++);
+  }
+}
+
+ISR(UART_RX_vect)
+{
+  ans = UDR0;
+  serial_putc(ans);
+  serial_puts("\nRead Tempareture in Celsius (1) or Fahrenheit (2) : ");
+
+  if (ans == '1' || ans == '2')
+  {
+    char msg[100];
+    sprintf(msg, "Read Tempareture in Celsius (1) or Fahrenheit (2) : %c", ans);
+    serial_puts(msg);
+  }
+  else 
+  {
+    serial_puts("Please type only 1 or 2");
+  }
+
+}
+
+void adc_init()
+{
+  ADMUX = 0b01000011; // Use A3
+  ADCSRA = 0b10000111; // Open A3 and Set Prescaler 128
+}
+
+int adc_read(char ch)
+{
+  char busy;
+  // Set Channel
+  ADMUX = ADMUX & 0b11110000;
+  ADMUX = ADMUX | ch;
+  // Start Conversation
+  ADCSRA = ADCSRA | 0b01000000;
+
+  do
+  {
+    busy = ADCSRA & 0b01000000;
+  }
+  while(busy!=0);
+
+  return (ADC);
+}
+
+int main(void)
+{
+  char temp_c[10] , temp_f[10];
+  serial_begin();
+  adc_init();
+  serial_puts("Read Tempareture in Celsius (1) or Fahrenheit (2) : ");
+
+  while(1)
+  {
+    int adc3 = adc_read(3);
+    float temperature_c;
+    temperature_c = (float)adc3;
+    temperature_c = adc3 * (5.0 / 1024.0) * 100.0;
+
+    float temperature_f; 
+    temperature_f = (float)temperature_c;
+    temperature_f = (temperature_c * 9.0 / 5.0) + 32.0;
+
+    char temp_c[100];
+    dtostrf(temperature_c,6,2,temp_c);
+    char temp_f[100];
+    dtostrf(temperature_f,6,2,temp_f);
+
+    if (ans == '1')
+    {
+      char text[100];
+      sprintf(text, "Temperature is %s C \r\n", temp_c);
+      serial_puts(text);
+    }
+    else if (ans == '2')
+    {
+      char text[100];
+      sprintf(text, "Temperature is %s F \r\n", temp_f);
+      serial_puts(text);
+    }
+    _delay_ms(1000);
+  }
+  return (0);
+}
